@@ -31,10 +31,10 @@ public class Sphere extends RadialGeometry {
      * (Currently returns null; should be implemented later.)
      *
      * @param point The point on the sphere surface
-     * @return The normal vector (null for now)
+     * @ Returns the normal vector between the center and the point we received.
      */
     @Override
     public Vector getNormal(Point point) {
-        return null;
+        return this.center.subtract(point).normalize();
     }
 }

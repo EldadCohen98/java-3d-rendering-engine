@@ -19,6 +19,7 @@ public class Vector extends Point {
             throw new IllegalArgumentException("Zero vector is not allowed");
     }
 
+
     /**
      * Constructs a vector from a Double3 object.
      *
