@@ -2,6 +2,10 @@ package geometries;
 
 import primitives.*;
 
+import java.util.List;
+
+import static primitives.Util.*;
+
 /**
  * Represents a plane in 3D space, defined either by a point and a normal vector,
  * or by three points lying on the plane.
@@ -56,5 +60,39 @@ public class Plane extends Geometry {
     @Override
     public Vector getNormal(Point point) {
         return this.normal;
+    }
+
+    /**
+     * @param ray The method receives a ray.
+     * @return List of intersection points with the plan.
+     */
+    @Override
+    public List<Point> findIntersections(Ray ray){
+        //The denominator of the formula
+        double normalDualDirection = Util.alignZero(this.normal.dotProduct(ray.getDirection()));
+        //If the denominator is 0 there is nothing more to check and we will return null
+        if(isZero(normalDualDirection)){
+            return null;
+        }
+        if(this.q0.equals(ray.getHead())){
+            return null;
+        }
+        //Calculate the denominator of the formula.
+        Vector P0Q0 = this.q0.subtract(ray.getHead());
+
+        //Substituting into the formula to find the distance between the top of the ray and the plane
+        double t = (this.normal.dotProduct(P0Q0)) / normalDualDirection;
+
+        //When T=0 it means that the ray started in the plane.
+        //When T<0 it means that the ray continues in the opposite direction to the plane and does not hit it.
+        //Therefore, we will return null in both cases.
+        if(alignZero(t) <= 0) {
+            return null;
+        }
+
+        // Calculating the intersection point of the ray and the plane.
+        Point intersectionPoint = ray.getPoint(t);
+
+        return List.of(intersectionPoint);
     }
 }

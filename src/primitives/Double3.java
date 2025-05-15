@@ -27,7 +27,8 @@ public record Double3(double d1, double d2, double d3) {
    public Double3(double value) { this(value, value, value); }
 
    @Override
-   public boolean equals(Object obj) {
+   public boolean
+   equals(Object obj) {
       if (this == obj) return true;
       return (obj instanceof Double3 other)
             && isZero(d1 - other.d1)

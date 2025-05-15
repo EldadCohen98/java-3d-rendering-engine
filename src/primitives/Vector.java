@@ -75,8 +75,7 @@ public class Vector extends Point {
         return new Vector(
                 this.xyz.d2()*vectorMultiplication.xyz.d3() - vectorMultiplication.xyz.d2()*this.xyz.d3(),
                 (-1)*(this.xyz.d1()*vectorMultiplication.xyz.d3() - vectorMultiplication.xyz.d1()*this.xyz.d3()),
-                this.xyz.d1()*vectorMultiplication.xyz.d2() - vectorMultiplication.xyz.d1()*this.xyz.d2()
-        );
+                this.xyz.d1()*vectorMultiplication.xyz.d2() - vectorMultiplication.xyz.d1()*this.xyz.d2());
     }
 
     /**

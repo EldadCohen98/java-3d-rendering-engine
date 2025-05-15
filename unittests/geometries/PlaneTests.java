@@ -2,6 +2,7 @@ package geometries;
 
 import org.junit.jupiter.api.Test;
 import primitives.Point;
+import primitives.Ray;
 import primitives.Vector;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -80,5 +81,73 @@ class PlaneTests {
 
         // Check unit length
         assertEquals(1, plane.getNormal(q1).length(), 0.00001, "The normal vector is not normal.");
+    }
+
+
+    /**
+     * Test method for {@link geometries.Plane#findIntersections(primitives.Ray)}.
+     * This test covers all Equivalence Partition (EP) and Boundary Value Analysis (BVA) cases
+     * for ray-plane intersection detection.
+     * EP1: Ray intersects the plane (1 point expected)
+     * EP2: Ray is parallel and outside the plane (no intersection)
+     * EP3: Ray is parallel and contained in the plane (no intersection)
+     * BVA1: Ray orthogonal to plane and starts before it (1 point expected)
+     * BVA2: Ray orthogonal to plane and starts on it (no intersection)
+     * BVA3: Ray orthogonal to plane and starts after it (no intersection)
+     * BVA4: Ray starts before the plane but goes away from it (no intersection)
+     * BVA5: Ray starts after the plane and continues away (no intersection)
+     */
+    @Test
+    void findIntersections() {
+        // === set a plan and normal === \\
+        Point p1 = new Point(1, 0, 0);
+        Point p2 = new Point(0, 1, 0);
+        Point p3 = new Point(0, 0, 0);
+        Plane plane = new Plane(p1, p2, p3);
+        Vector v1 = p1.subtract(p2);
+        Vector v2 = p1.subtract(p3);
+        Vector normalVector = v1.crossProduct(v2).normalize();
+
+        // ----- TC1 ----- \\
+        Ray downUpRay = new Ray(new Point(2, 2, -3), new Vector(1, 1, 1));
+        var resultTC1 = plane.findIntersections(downUpRay);
+        assertNotNull(resultTC1, "");
+        assertEquals(1, resultTC1.size(), "Wrong number of points for ray from inside");
+
+        // ----- TC2 ----- \\
+        Ray parallelRay = new Ray(new Point(1, 1, 0), v1);
+        var resultTC2 = plane.findIntersections(parallelRay);
+        assertNull(resultTC2, "A ray parallel to a plane should not intersect the plane.");
+
+        // ----- TC3 ----- \\
+        Ray containedRay = new Ray(new Point(1, 0, 0), v1);
+        var resultTC3 = plane.findIntersections(containedRay);
+        assertNull(resultTC3, "A ray contained in a plane should not intersect the plane at all.");
+
+        // ----- TC4 ----- \\
+        Ray downUpOrthogonalRay = new Ray(new Point(-2, 0, -3), new Vector(0, 0, 1));
+        var resultTC4 = plane.findIntersections(downUpOrthogonalRay);
+        assertNotNull(resultTC4, "A ray that starts before a plane and is orthogonal to the plane intersects the plane once.");
+        assertEquals(1, resultTC4.size(), "Wrong number of points for ray from inside");
+
+        // ----- TC5 ----- \\
+        Ray onPlanUpRay = new Ray(new Point(1, 0, 0), new Vector(0, 0, 1));
+        var resultTC5 = plane.findIntersections(onPlanUpRay);
+        assertNull(resultTC5, "A ray that starts on the plane does not intersect the plane at all.");
+
+        // ----- TC6 ----- \\
+        Ray onPlanDownRay = new Ray(new Point(1, 0, 0), new Vector(0, 0, -1));
+        var resultTC6 = plane.findIntersections(onPlanDownRay);
+        assertNull(resultTC6, "A ray that starts on the plane does not intersect the plane at all.");
+
+        // ----- TC7 ----- \\
+        Ray downRay = new Ray(new Point(-2, 0, -1), new Vector(0, 0, -1));
+        var resultTC7 = plane.findIntersections(downRay);
+        assertNull(resultTC7, "A ray that starts in front of the plane and continues behind it does not intersect the plane at all.");
+
+        // ----- TC8 ----- \\
+        Ray upRay = new Ray(new Point(1, 1, 1), new Vector(0, 0, 1));
+        var resultTC8 = plane.findIntersections(upRay);
+        assertNull(resultTC8,"A ray that starts after the plane and continues beyond it does not intersect the plane at all." );
     }
 }

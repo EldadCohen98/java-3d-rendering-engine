@@ -1,5 +1,7 @@
 package primitives;
 
+import static primitives.Util.isZero;
+
 /**
  * Represents a ray in 3D space, defined by a starting point (head)
  * and a normalized direction vector.
@@ -29,6 +31,20 @@ public class Ray {
     }
 
     /**
+     * @return the head of ray
+     */
+    public Point getHead() {
+        return head;
+    }
+
+    /**
+     * @return the direction of ray
+     */
+    public Vector getDirection() {
+        return direction;
+    }
+
+    /**
      * Returns a string representation of the ray.
      *
      * @return A string describing the ray's head and direction
@@ -53,4 +69,19 @@ public class Ray {
         Ray rayComparison = (Ray) objectInspection;
         return this.head.equals(rayComparison.head) && this.direction.equals(rayComparison.direction);
     }
+
+    /**
+     * @param t Distance from the top of the ray
+     * @return  Point according to distance t.
+     */
+    public Point getPoint (double t) {
+        if(isZero(t))
+            return this.head;
+
+        return this.head.add(this.direction.scale(t));
+    }
+
+
+
 }
+
