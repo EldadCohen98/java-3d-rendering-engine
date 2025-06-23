@@ -3,7 +3,7 @@ package primitives;
 /**
  * Class representing a point in 3D space using Double3 coordinates.
  */
-public class Point {
+public class Point implements Cloneable {
 
     /**
      * The coordinates of the point.
@@ -62,9 +62,9 @@ public class Point {
      * @return The squared distance.
      */
     public double distanceSquared(Point p1) {
-        return (this.xyz.d1()-p1.xyz.d1()) * (this.xyz.d1()-p1.xyz.d1()) +
-               (this.xyz.d2()-p1.xyz.d2()) * (this.xyz.d2()-p1.xyz.d2()) +
-               (this.xyz.d3()-p1.xyz.d3()) * (this.xyz.d3()-p1.xyz.d3());
+        return (this.xyz.d1() - p1.xyz.d1()) * (this.xyz.d1() - p1.xyz.d1()) +
+                (this.xyz.d2() - p1.xyz.d2()) * (this.xyz.d2() - p1.xyz.d2()) +
+                (this.xyz.d3() - p1.xyz.d3()) * (this.xyz.d3() - p1.xyz.d3());
     }
 
     /**
@@ -100,5 +100,22 @@ public class Point {
         }
         Point pointComparison = (Point) obj;
         return this.xyz.equals(pointComparison.xyz);
+    }
+
+    /**
+      * Creates and returns a copy (clone) of this {@code Point}.
+      * The clone is a new {@code Point} instance with the same coordinate values (x, y, z)
+      * as the original. Since {@code Point} contains only primitive fields, this is a full and safe copy.
+      * @return a cloned {@code Point} with the same coordinates
+      * @throws RuntimeException if cloning is not supported (should not occur)
+    */
+    @Override
+    public Point clone() {
+        try {
+            return (Point) super.clone();
+        }
+        catch(CloneNotSupportedException e) {
+            throw new RuntimeException(e);
+        }
     }
 }

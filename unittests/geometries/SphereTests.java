@@ -8,17 +8,17 @@ import primitives.*;
 import java.util.List;
 
 /**
- * Unit test class for getNormal() method.
- * Verifies that the normal vector computed for a point on a sphere is correct.
- */
+  * Unit test class for getNormal() method.
+  * Verifies that the normal vector computed for a point on a sphere is correct.
+*/
 class SphereTests {
 
     /**
-     * Test method for getNormal().
-     * This test checks the following:
-     *   1 . The normal vector is in the correct direction (from the center to the surface point)
-     *   2. The normal vector is normalized (unit length)
-     */
+      * Test method for getNormal().
+      * This test checks the following:
+      *   1 . The normal vector is in the correct direction (from the center to the surface point)
+      *   2. The normal vector is normalized (unit length)
+    */
     @Test
     void testGetNormal() {
         // === Set up sphere ===

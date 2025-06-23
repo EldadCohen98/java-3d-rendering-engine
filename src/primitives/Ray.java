@@ -80,8 +80,5 @@ public class Ray {
 
         return this.head.add(this.direction.scale(t));
     }
-
-
-
 }
 

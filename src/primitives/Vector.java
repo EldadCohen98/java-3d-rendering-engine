@@ -3,7 +3,12 @@ package primitives;
 /**
  * Represents a 3D vector, extending Point but disallowing the zero vector.
  */
-public class Vector extends Point {
+public class Vector extends Point implements Cloneable {
+
+    public static final Vector AXIS_X = new Vector(1, 0, 0);
+    public static final Vector AXIS_Y = new Vector(0, 1, 0);
+    public static final Vector AXIS_Z = new Vector(0, 0, 1);
+
 
     /**
      * Constructs a vector from x, y, z values.
@@ -18,7 +23,6 @@ public class Vector extends Point {
         if(xyz.equals(Double3.ZERO))
             throw new IllegalArgumentException("Zero vector is not allowed");
     }
-
 
     /**
      * Constructs a vector from a Double3 object.
@@ -135,5 +139,16 @@ public class Vector extends Point {
         }
         Vector comparatorVector = (Vector) comparatorObject;
         return this.xyz.equals(comparatorVector.xyz);
+    }
+
+    /**
+      * Creates and returns a copy (clone) of this {@code Vector}.
+      * Since {@code Vector} extends {@link Point} and relies on its {@code clone()} implementation,
+      * this method performs a shallow copy that safely duplicates the internal {@code Point} data.
+      * Use this method to create an independent {@code Vector} with the same coordinate values.
+      * @return a cloned {@code Vector} with the same direction
+    */    @Override
+    public Vector clone(){
+            return (Vector) super.clone();
     }
 }
