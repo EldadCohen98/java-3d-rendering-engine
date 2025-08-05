@@ -1,9 +1,7 @@
 package geometries;
 
 import primitives.*;
-
 import java.util.List;
-
 import static primitives.Util.*;
 
 /**
@@ -63,11 +61,19 @@ public class Plane extends Geometry {
     }
 
     /**
-     * @param ray The method receives a ray.
-     * @return List of intersection points with the plan.
-     */
+      * Calculates the intersection point between a given ray and the plane.
+      * Returns a list with a single {@link Intersection} containing the point
+      * and this geometry, or {@code null} if there is no intersection.
+      * The method handles the following cases:
+      *     If the ray is parallel to the plane – returns {@code null}.
+      *     If the ray starts on the plane – returns {@code null}.
+      *     If the intersection point is behind the ray origin – returns {@code null}.
+      *     Otherwise – returns the intersection point as an {@code Intersection}.
+      * @param ray the ray to intersect with the plane
+      * @return a list containing the intersection, or {@code null} if no intersection occurs
+    */
     @Override
-    public List<Point> findIntersections(Ray ray){
+    public List<Intersection> calculateIntersectionsHelper(Ray ray){
         //The denominator of the formula
         double normalDualDirection = Util.alignZero(this.normal.dotProduct(ray.getDirection()));
         //If the denominator is 0 there is nothing more to check and we will return null
@@ -93,6 +99,6 @@ public class Plane extends Geometry {
         // Calculating the intersection point of the ray and the plane.
         Point intersectionPoint = ray.getPoint(t);
 
-        return List.of(intersectionPoint);
+        return List.of(new Intersection(this, intersectionPoint, this.getMaterial()));
     }
 }

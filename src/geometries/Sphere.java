@@ -46,16 +46,25 @@ public class Sphere extends RadialGeometry {
     }
 
     /**
-     * @param ray The method receives a ray.
-     * @return List of intersection points with the sphere.
-     */
+      * Calculates the intersection points between a given ray and the sphere.
+      * Returns a list of {@link Intersection} objects, each containing the point of intersection
+      * and the geometry (this sphere).
+      * The method considers multiple cases:
+      *     1. Ray starts at the center of the sphere – returns the exit point.
+      *     2. Ray starts outside and intersects at one or two points.
+      *     3. Ray starts on the surface, going inwards or outwards.
+      *     4. Ray starts inside the sphere – returns exit point.
+      *     5. In all other cases (no intersection or tangent) – returns {@code null}.
+      * @param ray the ray to test for intersection with the sphere
+      * @return list of intersection objects (geometry + point), or {@code null} if no intersection
+    */
     @Override
-    public List<Point> findIntersections(Ray ray) {
+    public List<Intersection> calculateIntersectionsHelper (Ray ray) {
         //A ray begins at the center of the sphere.
         if(Util.isZero((this.center.distance(ray.getHead())))){
             //Exit point from the sphere according to the formula "P0 + directionVector * distance = P"
             Point exitPointCenter = ray.getPoint(this.radius);
-            return List.of(exitPointCenter);
+            return List.of(new Intersection(this, exitPointCenter, this.getMaterial()));
         }
 
         //Vector between the center point of the sphere and the starting point of the ray
@@ -82,17 +91,17 @@ public class Sphere extends RadialGeometry {
 
         //where the ray starts beyond the sphere and intersects the sphere at two points.
         if(squaredDistanceCenterClosestPoint < this.radiusSquared && centerToHeadRay.length() > this.radius) {
-            List<Point> intersections = new ArrayList<>();
+            List<Intersection> intersections = new ArrayList<>();
 
             if(Util.alignZero((rightPart)) > 0) {
                 //Entry point for sphere according to the formula
                 Point entryPoint = ray.getPoint(rightPart);
-                intersections.add(entryPoint);
+                intersections.add(new Intersection(this,entryPoint, this.getMaterial()));
             }
             if(Util.alignZero((distanceToClosestPointRay + halfLengthRaySegment)) > 0 && !Util.isZero((leftPart - rightPart))) {
                 //Exit point from the sphere according to the formula
                 Point exitPoint = ray.getPoint(leftPart);
-                intersections.add(exitPoint);
+                intersections.add(new Intersection(this,exitPoint , this.getMaterial()));
             }
             //Add the points to the list and return the list
             if(!intersections.isEmpty())
@@ -103,7 +112,7 @@ public class Sphere extends RadialGeometry {
         if(Util.isZero((centerToHeadRay.length() - this.radius)) && ray.getDirection().dotProduct(centerToHeadRay) > 0){
             //Exit point from the sphere according to the formula "d * P0 + directionVector * distance = P"
             Point exitPointTangent = ray.getPoint(distanceToClosestPointRay * 2);
-            return List.of(exitPointTangent);
+            return List.of(new Intersection(this,exitPointTangent , this.getMaterial()));
         }
 
         //A ray starts on the sphere towards the outside of the sphere.
@@ -119,7 +128,7 @@ public class Sphere extends RadialGeometry {
             //Exit point from the sphere according to the formula "P0 + directionVector * distance = P"
             Point exitPointCenter = ray.getPoint(distanceAdd);
 
-            return List.of(exitPointCenter);
+            return List.of(new Intersection(this, exitPointCenter, this.getMaterial()));
         }
 
         //If the list is empty, return null

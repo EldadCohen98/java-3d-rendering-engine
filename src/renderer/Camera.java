@@ -384,7 +384,7 @@ public class Camera implements Cloneable{
                 if(x%interval==0 || y%interval==0)
                     imageWriter.writePixel(x,y,color);
 
-        imageWriter.writeToImage("des");
+        //imageWriter.writeToImage("des");
         return this;
     }
 

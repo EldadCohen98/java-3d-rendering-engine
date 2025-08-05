@@ -2,6 +2,8 @@ package geometries;
 
 import primitives.*;
 
+import java.util.List;
+
 /**
  * Represents an infinite tube in 3D space.
  * A tube is defined by a central axis ray and a radius.
@@ -27,13 +29,14 @@ public class Tube extends RadialGeometry {
 
     /**
      * Constructs a tube with a given axis and radius.
+     *
      * @param radius The radius of the tube. Must be positive.
      */
     public Tube(Point headRay, Vector directionRay, double radius) {
         super(radius);
         this.axisHead = headRay;
         this.axisDirection = directionRay.normalize();
-        this.axis = new Ray(this.axisHead, this.axisDirection) ;
+        this.axis = new Ray(this.axisHead, this.axisDirection);
     }
 
     /**
@@ -56,6 +59,12 @@ public class Tube extends RadialGeometry {
 
         //4. We will return the normal vector at the point
         return normalPoint.subtract(point).normalize();
+    }
+
+
+    @Override
+    public List<Intersection> calculateIntersectionsHelper(Ray ray){
+        return null;
     }
 }
 

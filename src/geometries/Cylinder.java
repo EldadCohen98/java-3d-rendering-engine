@@ -17,13 +17,17 @@ public class Cylinder extends Tube {
     private double height;
 
     /**
-     * Constructs a cylinder with a given height, axis, and radius.
-     *
-     * @param height The height of the cylinder. Must be greater than zero.
-     * @param axis   The axis ray (central direction and base point)
-     * @param radius The radius of the cylinder. Must be positive.
-     * @throws IllegalArgumentException if height is less than or equal to zero
-     */
+      * Constructs a finite cylinder with a given height, axis ray, and radius.
+      * <p>
+      * The cylinder is defined by an infinite tube (inherited) and a finite height
+      * starting from the given point in the direction of the axis.
+      *
+      * @param height        the height of the cylinder (must be positive)
+      * @param headRay       the starting point of the axis ray
+      * @param directionRay  the direction vector of the axis ray
+      * @param radius        the radius of the cylinder (inherited from Tube)
+      * @throws IllegalArgumentException if height is not greater than zero
+    */
     public Cylinder(double height, Point headRay, Vector directionRay, double radius) {
         super(headRay, directionRay, radius);
 

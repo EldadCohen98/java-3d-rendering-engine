@@ -7,28 +7,18 @@ import primitives.*;
   * It simulates general illumination that affects all objects equally,
   * regardless of their position or direction.
 */
-public class AmbientLight {
+public class AmbientLight extends Light {
 
-    /**
-      * Light intensity by RGB components.
-    */
-    private final Color intensity;
 
     public static final AmbientLight NONE = new AmbientLight(Color.BLACK);
 
     /**
-     * Constructor
+     * Constructor for ambient light.
      * @param intensity the ambient light color (intensity)
     */
     public AmbientLight(Color intensity) {
-        this.intensity = intensity;
+        super(intensity);
     }
 
-    /**
-      * Getter for intensity
-      * @return color of ambient light
-    */
-    public Color getIntensity() {
-        return intensity;
-    }
+
 }

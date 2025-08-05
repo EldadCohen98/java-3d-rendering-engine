@@ -1,7 +1,7 @@
 package primitives;
 
 import java.util.List;
-
+import geometries.Intersectable.Intersection;
 import static primitives.Util.isZero;
 
 /**
@@ -83,26 +83,43 @@ public class Ray {
         return this.head.add(this.direction.scale(t));
     }
 
+
     /**
-      * Finds the point in the given list that is closest to the ray's origin (head).
-      * @param points the list of points to check (can be null or empty)
-      * @return the closest point to the ray's origin, or null if the list is null or empty
+      * Finds the closest point to the ray's head (origin) from a list of points.
+      * Internally wraps each point as an {@link geometries.Intersectable.Intersection} object
+      * with a {@code null} geometry, and then delegates to {@link #findClosestIntersection(List)}.
+      * @param points the list of points to search through
+      * @return the point closest to the ray's head, or {@code null} if the list is empty or {@code null}
     */
     public Point findClosestPoint(List<Point> points) {
-        if(points == null ||points.isEmpty())
+        return points == null ? null
+                : findClosestIntersection(points.stream().map(p -> new Intersection(null, p, null)).toList()).point;
+    }
+
+    /**
+      * Finds the {@link geometries.Intersectable.Intersection} object whose point is closest
+      * to the ray's head (origin) from a given list of intersections.
+      * @param intersectionPoints the list of intersection objects to evaluate
+      * @return the intersection object with the closest point to the ray's head,
+      *         or {@code null} if the list is empty or {@code null}
+    */
+    public Intersection findClosestIntersection(List<Intersection> intersectionPoints) {
+        if(intersectionPoints == null || intersectionPoints.isEmpty())
             return null;
 
-        Point closestPoint = null;
+        Intersection closestIntersection = null;
         double closestDistance = Double.MAX_VALUE;
+        double distance = 0;
 
-        for(Point point : points) {
-            double distance = point.distance(this.head);
+        for(Intersection intersection : intersectionPoints) {
+            distance = intersection.point.distance(this.head);
+
             if(distance < closestDistance) {
-                closestPoint = point;
+                closestIntersection = intersection;
                 closestDistance = distance;
             }
         }
-        return closestPoint;
+        return closestIntersection;
     }
 }
 

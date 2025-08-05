@@ -19,7 +19,7 @@ public class RenderTests {
 
    /** Camera builder of the tests */
    private final Camera.Builder camera = Camera.getBuilder() //
-      .setLocation(Point.ZERO).setDirection(new Point(0, 0, -1), Vector.AXIS_Y) //
+      .setLocation(Point.ZERO).setDirection(new Point(0, 0, -100), Vector.AXIS_Y) //
       .setVpDistance(100) //
       .setVpSize(500, 500);
 
@@ -35,11 +35,11 @@ public class RenderTests {
          .add(// center
               new Sphere(new Point(0, 0, -100), 50d),
               // up left
-              new Triangle(new Point(-100, 0, -100), new Point(0, 100, -100), new Point(-100, 100, -100)),
+              new Triangle(new Point(-100, 0, -100), new Point(0, 100, -100), new Point(-100, 100, -100)).setMaterial(new Material().setkA(0.4)),
               // down left
-              new Triangle(new Point(-100, 0, -100), new Point(0, -100, -100), new Point(-100, -100, -100)),
+              new Triangle(new Point(-100, 0, -100), new Point(0, -100, -100), new Point(-100, -100, -100)).setMaterial(new Material().setkA(0.4)),
               // down right
-              new Triangle(new Point(100, 0, -100), new Point(0, -100, -100), new Point(100, -100, -100)));
+              new Triangle(new Point(100, 0, -100), new Point(0, -100, -100), new Point(100, -100, -100)).setMaterial(new Material().setkA(0.4)));
 
       camera //
          .setRayTracer(scene, RayTracerType.SIMPLE) //
@@ -52,33 +52,66 @@ public class RenderTests {
 
    // For stage 6 - please disregard in stage 5
    /**
-    * Produce a scene with basic 3D model - including individual lights of the
-    * bodies and render it into a png image with a grid
-    */
-   /*@Test
-   public void renderMultiColorTest() {
+     * Produce a scene with basic 3D model - including individual lights of the
+     * bodies and render it into a png image with a grid
+   */
+   @Test
+   void renderMultiColorTest() {
       Scene scene = new Scene("Multi color").setAmbientLight(new AmbientLight(new Color(51, 51, 51)));
       scene.geometries //
-         .add(// center
-              new Sphere(new Point(0, 0, -100), 50),
-              // up left
-              new Triangle(new Point(-100, 0, -100), new Point(0, 100, -100), new Point(-100, 100, -100)) //
-                 .setEmission(new Color(GREEN)),
-              // down left
-              new Triangle(new Point(-100, 0, -100), new Point(0, -100, -100), new Point(-100, -100, -100)) //
-                 .setEmission(new Color(RED)),
-              // down right
-              new Triangle(new Point(100, 0, -100), new Point(0, -100, -100), new Point(100, -100, -100)) //
-                 .setEmission(new Color(BLUE)));
+              .add(// center
+                      new Sphere(new Point(0, 0, -100), 50).setEmission(new Color(GRAY)),
+                      // up left
+                      new Triangle(new Point(-100, 0, -100), new Point(0, 100, -100), new Point(-100, 100, -100)) //
+                              .setEmission(new Color(GREEN)),
+                      // down left
+                      new Triangle(new Point(-100, 0, -100), new Point(0, -100, -100), new Point(-100, -100, -100)) //
+                              .setEmission(new Color(RED)),
+                      // down right
+                      new Triangle(new Point(100, 0, -100), new Point(0, -100, -100), new Point(100, -100, -100)) //
+                              .setEmission(new Color(BLUE)));
 
       camera //
-         .setRayTracer(scene, RayTracerType.SIMPLE) //
-         .setResolution(1000, 1000) //
-         .build() //
-         .renderImage() //
-         .printGrid(100, new Color(WHITE)) //
-         .writeToImage("color render test");
-   }*/
+              .setRayTracer(scene, RayTracerType.SIMPLE) //
+              .setResolution(1000, 1000) //
+              .build() //
+              .renderImage() //
+              .printGrid(100, new Color(WHITE)) //
+              .writeToImage("color render test");
+  }
 
+   /**
+    * Integration test that renders a basic scene illuminated only by ambient light.
+     * The scene includes:
+     * - A gray sphere in the center
+     * - Three colored triangles around it (green top-left, red bottom-left, blue bottom-right)
+     * The ambient light is white, and each geometry has a different kA (ambient coefficient)
+     * to control how much ambient light it reflects.
+     * The result is rendered with a black background and a white grid.
+     * The image is saved as "new render test.png".
+   */
+   @Test
+   public void renderAmbientLightTest(){
+      Scene ambientScene = new Scene("desPicture").setAmbientLight(new AmbientLight(new Color(WHITE))).setBackground(new Color(BLACK));
+      ambientScene.geometries //
+              .add(// center
+                      new Sphere(new Point(0, 0, -100), 50).setMaterial(new Material().setkA(0.4)),
+                      // up left
+                      new Triangle(new Point(-100, 0, -100), new Point(0, 100, -100), new Point(-100, 100, -100)) //
+                              .setMaterial(new Material().setkA(new Double3(0,0.8,0))),
+                      // down left
+                      new Triangle(new Point(-100, 0, -100), new Point(0, -100, -100), new Point(-100, -100, -100)) //
+                              .setMaterial(new Material().setkA(new Double3(0.8,0,0))),
+                      // down right
+                      new Triangle(new Point(100, 0, -100), new Point(0, -100, -100), new Point(100, -100, -100)) //
+                              .setMaterial(new Material().setkA(new Double3(0,0,0.8))));
+      camera //
+              .setRayTracer(ambientScene, RayTracerType.SIMPLE) //
+              .setResolution(1000, 1000) //
+              .build() //
+              .renderImage() //
+              .printGrid(100, new Color(WHITE)) //
+              .writeToImage("new render test");
 
+   }
 }
