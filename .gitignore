@@ -31,7 +31,16 @@ bin/
 .DS_Store
 
 
-
+### Generated Javadoc ###
+/geometries/
+/primitives/
+/index-files/
+/legal/
+/resource-files/
+/script-files/
+/*.html
+/*-search-index.js
+/element-list
 
 
 
