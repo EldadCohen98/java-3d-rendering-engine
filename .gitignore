@@ -2,6 +2,8 @@
 out/
 !**/src/main/**/out/
 !**/src/test/**/out/
+.idea/
+*.iml
 
 ### Eclipse ###
 .apt_generated
@@ -27,3 +29,11 @@ bin/
 
 ### Mac OS ###
 .DS_Store
+
+
+
+
+
+
+
+
