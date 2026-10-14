@@ -7,9 +7,6 @@ import lighting.*;
 import primitives.*;
 import scene.Scene;
 
-import java.util.ArrayList;
-import java.util.List;
-
 /**
  * Test rendering a basic image
  * @author Dan Zilberstein
@@ -18,11 +15,14 @@ class LightsTests {
    /** Default constructor to satisfy JavaDoc generator */
    LightsTests() { /* to satisfy JavaDoc generator */ }
 
+
    /** First scene for some of the tests */
    private final Scene          scene1                  = new Scene("Test scene");
    /** Second scene for some of the tests */
    private final Scene          scene2                  = new Scene("Test scene")
       .setAmbientLight(new AmbientLight(new Color(38, 38, 38)));
+
+
 
    /** First camera builder for some of the tests */
    private final Camera.Builder camera1                 = Camera.getBuilder()
@@ -31,12 +31,16 @@ class LightsTests {
       .setDirection(Point.ZERO, Vector.AXIS_Y)
       .setVpSize(150, 150).setVpDistance(1000);
 
+
+
    /** Second camera builder for some of the tests */
    private final Camera.Builder camera2                 = Camera.getBuilder()
       .setRayTracer(scene2, RayTracerType.SIMPLE)
       .setLocation(new Point(0, 0, 1000))
       .setDirection(Point.ZERO, Vector.AXIS_Y)
       .setVpSize(200, 200).setVpDistance(1000);
+
+
 
    /** Shininess value for most of the geometries in the tests */
    private static final int     SHININESS               = 301;
@@ -49,6 +53,8 @@ class LightsTests {
    private static final double  KS                      = 0.5;
    /** Specular attenuation factor for some of the geometries in the tests */
    private static final Double3 KS3                     = new Double3(0.2, 0.4, 0.3);
+
+
 
    /** Material for some of the geometries in the tests */
    private final Material       material                = new Material().setkD(KD3).setkS(KS3).setShininess(SHININESS);
@@ -64,6 +70,9 @@ class LightsTests {
    /** Radius of the sphere */
    private static final double  SPHERE_RADIUS           = 50d;
 
+
+
+                  /*===== creating vertex of triangle =====*/
    /** The triangles' vertices for the tests with triangles */
    private final Point[]        vertices                =
       {
@@ -76,6 +85,10 @@ class LightsTests {
         // the left-top
         new Point(-75, 78, 100)
       };
+
+
+
+                     /*===== creating lights =====*/
    /** Position of the light in tests with sphere */
    private final Point          sphereLightPosition     = new Point(-50, -50, 25);
    /** Light direction (directional and spot) in tests with sphere */
@@ -85,6 +98,9 @@ class LightsTests {
    /** Light direction (directional and spot) in tests with triangles */
    private final Vector         trianglesLightDirection = new Vector(-2, -2, -2);
 
+
+
+                     /*===== creating geometries =====*/
    /** The sphere in appropriate tests */
    private final Geometry       sphere                  = new Sphere(sphereCenter, SPHERE_RADIUS)
       .setEmission(sphereColor).setMaterial(new Material().setkD(KD).setkS(KS).setShininess(SHININESS));
@@ -95,6 +111,9 @@ class LightsTests {
    private final Geometry       triangle2               = new Triangle(vertices[0], vertices[1], vertices[3])
       .setMaterial(material);
 
+
+
+                     /*===== Sphere tests =====*/
    /** Produce a picture of a sphere lighted by a directional light */
    @Test
    void sphereDirectional() {
@@ -127,7 +146,7 @@ class LightsTests {
    void sphereSpot() {
       scene1.geometries.add(sphere);
       scene1.lights.add(new SpotLight(sphereLightColor, sphereLightPosition, sphereLightDirection) //
-         .setKl(0.001).setKq(0.0001));
+         .setKl(0.001).setKq(0.00004));
 
       camera1 //
          .setResolution(500, 500) //
@@ -136,6 +155,9 @@ class LightsTests {
          .writeToImage("lightSphereSpot");
    }
 
+
+
+                     /*===== Triangle tests =====*/
    /** Produce a picture of two triangles lighted by a directional light */
    @Test
    void trianglesDirectional() {
@@ -174,13 +196,15 @@ class LightsTests {
          .writeToImage("lightTrianglesSpot");
    }
 
+
+                     /*===== Sharp tests =====*/
    /** Produce a picture of a sphere lighted by a narrow spotlight */
    @Test
    void sphereSpotSharp() {
       scene1.geometries.add(sphere);
       scene1.lights
          .add(new SpotLight(sphereLightColor, sphereLightPosition, new Vector(1, 1, -0.5)) //
-            .setKl(0.001).setKq(0.00004)/*.setNarrowBeam(10)*/);
+            .setKl(0.001).setKq(0.00004).setNarrowBeam(10));
 
       camera1.setResolution(500, 500) //
          .build() //
@@ -193,13 +217,15 @@ class LightsTests {
    void trianglesSpotSharp() {
       scene2.geometries.add(triangle1, triangle2);
       scene2.lights.add(new SpotLight(trianglesLightColor, trianglesLightPosition, trianglesLightDirection) //
-         .setKl(0.001).setKq(0.00004)/*.setNarrowBeam(10)*/);
-
+         .setKl(0.001).setKq(0.00004).setNarrowBeam(10));
       camera2.setResolution(500, 500) //
          .build() //
          .renderImage() //
          .writeToImage("lightTrianglesSpotSharp");
    }
+
+
+                     /*===== Three tests =====*/
 
    /**
      * Produce a picture of a sphere lighted by three combined light sources:
@@ -236,7 +262,8 @@ class LightsTests {
       scene2.lights.add(new SpotLight(trianglesLightColor, trianglesLightPosition, trianglesLightDirection));
       scene2.lights.add(new DirectionalLight(trianglesLightColor, trianglesLightDirection));
 
-      camera2.setResolution(500, 500)
+      camera2//
+              .setResolution(500, 500)
               .build()
               .renderImage()
               .writeToImage("lightThreeLightsTriangle");

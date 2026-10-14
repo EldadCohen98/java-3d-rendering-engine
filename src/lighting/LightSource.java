@@ -22,11 +22,21 @@ public interface LightSource
 
     /**
      * Returns a normalized vector from the light source to a given point in space.
-     * This vector represents the direction of the incoming light to the point.
+     * This vector represents the direction of the incoming light to the point
+     * (the direction in which the light travels, NOT the direction towards the light).
      * It is commonly used for shading and lighting calculations (like diffuse & specular).
      *
      * @param p the point in the scene to which the light direction is computed
      * @return a normalized vector pointing from the light source to point {@code p}
      */
     Vector getL(Point p);
+
+    /**
+     * Returns the distance between the light source and a given point in space.
+     * Used to limit shadow rays to the segment between the point and the light.
+     *
+     * @param point the point in the scene
+     * @return the distance to the light, or {@link Double#POSITIVE_INFINITY} for a light with no position
+     */
+    double getDistance(Point point);
 }

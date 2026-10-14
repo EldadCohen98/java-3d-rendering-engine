@@ -11,6 +11,7 @@ public class SpotLight extends PointLight implements LightSource{
 
     /** Light direction vector */
     private final Vector spotLightDirection;
+    private double narrowBeam = 1;
 
     /**
      * Constructs a spotlight with the given intensity, position, and direction.
@@ -30,8 +31,9 @@ public class SpotLight extends PointLight implements LightSource{
      * @return the current SpotLight object for method chaining
      */
     @Override
-    public PointLight setKc(double kC) {
-        return super.setKc(kC);
+    public SpotLight setKc(double kC) {
+        super.setKc(kC);
+        return this;
     }
 
     /**
@@ -40,8 +42,9 @@ public class SpotLight extends PointLight implements LightSource{
      * @return the current SpotLight object for method chaining
      */
     @Override
-    public PointLight setKl(double kL) {
-        return super.setKl(kL);
+    public SpotLight setKl(double kL) {
+        super.setKl(kL);
+        return this;
     }
 
     /**
@@ -50,24 +53,29 @@ public class SpotLight extends PointLight implements LightSource{
      * @return the current SpotLight object for method chaining
      */
     @Override
-    public PointLight setKq(double kQ) {
-        return super.setKq(kQ);
+    public SpotLight setKq(double kQ) {
+        super.setKq(kQ);
+        return this;
     }
 
 
     /**
      * Calculates the intensity of the spotlight at a given point.
-     * It uses the attenuation factors from PointLight and multiplies it by the cosine
-     * of the angle between the spotlight direction and the direction to the point.
-     * If the point is outside the cone, the intensity will be very low or zero.
+     * It uses the attenuation factors from PointLight and multiplies it by
+     * (dir · L)^narrowBeam, where L is the direction from the light to the point.
+     * Points behind the spotlight (dir · L &lt;= 0) get no light.
      * @param p the point in the scene
      * @return the attenuated light intensity at point {@code p}
      */
     @Override
     public Color getIntensity(Point p){
-       Color returnedIntensity = super.getIntensity(p);
-       double proportion = Math.max(0, this.spotLightDirection.dotProduct(this.getL(p))); //Calculating whether the point is at an angle to the light
-       return returnedIntensity.scale(proportion);
+        //cosine of the angle between the spot direction and the light-to-point direction
+        double proportion = Util.alignZero(this.spotLightDirection.dotProduct(this.getL(p)));
+
+        if (proportion <= 0)
+           return Color.BLACK;
+
+        return super.getIntensity(p).scale(Math.pow(proportion, this.narrowBeam));
     }
 
     /**
@@ -77,6 +85,23 @@ public class SpotLight extends PointLight implements LightSource{
      */
     @Override
     public Vector getL(Point p){
-        return p.subtract(position).normalize();
+        return super.getL(p);
+    }
+
+    @Override
+    public double getDistance(Point point){
+        return super.getDistance(point);
+    }
+
+
+    /**
+     * Sets the narrow beam exponent - higher values give a narrower beam.
+     * @param narrow the exponent of the spot factor (1 = regular spotlight)
+     * @return the current SpotLight object for method chaining
+     */
+    public SpotLight setNarrowBeam(double narrow){
+        this.narrowBeam = narrow;
+        return this;
+
     }
 }

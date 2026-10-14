@@ -36,6 +36,20 @@ public class Material {
      */
     public int nShininess = 0;
 
+    /**
+     * Transparency coefficient (kT) –
+     * controls how much light passes through the surface.
+     * Represented as a Double3 for per-channel control (R, G, B). Default is no transparency.
+     */
+    public Double3 kT = Double3.ZERO;
+
+    /**
+     * Reflection coefficient (kR) –
+     * controls how much of the mirror reflection of the environment is seen on the surface.
+     * Represented as a Double3 for per-channel control (R, G, B). Default is no reflection.
+     */
+    public Double3 kR = Double3.ZERO;
+
     //=========================== Function =========================== \\
 
     /**
@@ -104,5 +118,79 @@ public class Material {
     public Material setShininess(int nSh) {
         this.nShininess = nSh;
         return this;
+    }
+
+    /**
+      * Sets the transparency coefficient (kT) using a Double3.
+      * @param kT the transparency coefficient per RGB channel
+      * @return the current Material object (for builder-style chaining)
+    */
+    public Material setKT(Double3 kT) {
+        this.kT = kT;
+        return this;
+    }
+
+    /**
+      * Sets the transparency coefficient (kT) using a scalar value.
+      * @param kT the transparency coefficient (applied equally to R, G, B)
+      * @return the current Material object (for builder-style chaining)
+    */
+    public Material setKT(double kT) {
+        return setKT(new Double3(kT));
+    }
+
+    /**
+      * Sets the reflection coefficient (kR) using a Double3.
+      * @param kR the reflection coefficient per RGB channel
+      * @return the current Material object (for builder-style chaining)
+    */
+    public Material setKR(Double3 kR) {
+        this.kR = kR;
+        return this;
+    }
+
+    /**
+      * Sets the reflection coefficient (kR) using a scalar value.
+      * @param kR the reflection coefficient (applied equally to R, G, B)
+      * @return the current Material object (for builder-style chaining)
+    */
+    public Material setKR(double kR) {
+        return setKR(new Double3(kR));
+    }
+
+    /**
+      * Alias of {@link #setkD(Double3)} (the name used in the course material).
+      * @param kD the diffuse reflection coefficient per RGB channel
+      * @return the current Material object (for builder-style chaining)
+    */
+    public Material setKD(Double3 kD) {
+        return setkD(kD);
+    }
+
+    /**
+      * Alias of {@link #setkD(double)} (the name used in the course material).
+      * @param kD the diffuse reflection coefficient (applied equally to R, G, B)
+      * @return the current Material object (for builder-style chaining)
+    */
+    public Material setKD(double kD) {
+        return setkD(kD);
+    }
+
+    /**
+      * Alias of {@link #setkS(Double3)} (the name used in the course material).
+      * @param kS the specular reflection coefficient per RGB channel
+      * @return the current Material object (for builder-style chaining)
+    */
+    public Material setKS(Double3 kS) {
+        return setkS(kS);
+    }
+
+    /**
+      * Alias of {@link #setkS(double)} (the name used in the course material).
+      * @param kS the specular reflection coefficient (applied equally to R, G, B)
+      * @return the current Material object (for builder-style chaining)
+    */
+    public Material setKS(double kS) {
+        return setkS(kS);
     }
 }

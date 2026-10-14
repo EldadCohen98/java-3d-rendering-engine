@@ -30,6 +30,8 @@ public class Tube extends RadialGeometry {
     /**
      * Constructs a tube with a given axis and radius.
      *
+     * @param headRay      The head (starting point) of the tube's axis.
+     * @param directionRay The direction of the tube's axis (will be normalized).
      * @param radius The radius of the tube. Must be positive.
      */
     public Tube(Point headRay, Vector directionRay, double radius) {
@@ -41,10 +43,12 @@ public class Tube extends RadialGeometry {
 
     /**
      * Returns the normal vector to the tube at the given point on its surface.
-     * (Currently not implemented; returns null.)
+     * The normal points outwards, from the closest point on the axis to the surface point.
+     * The closest axis point is the axis head moved by the projection of (point - head) on the axis;
+     * the projection may be negative (the tube is infinite) or zero (then the head itself is used).
      *
      * @param point The point on the tube surface
-     * @return The normal vector
+     * @return The normalized outward normal vector
      */
     @Override
     public Vector getNormal(Point point) {
@@ -52,13 +56,14 @@ public class Tube extends RadialGeometry {
         Vector pointToHead = point.subtract(this.axisHead);
 
         //2. Calculate the distance between the starting point of the ray and the given point.
-        double pointToHeadDistance = pointToHead.dotProduct(this.axisDirection);
+        double pointToHeadDistance = Util.alignZero(pointToHead.dotProduct(this.axisDirection));
 
-        //3. "normalPoint" is the point of the normalized vector
-        Point normalPoint = this.axisHead.add(this.axisDirection.scale(pointToHeadDistance));
+        //3. "normalPoint" is the closest point on the axis (the head itself when the projection is zero)
+        Point normalPoint = Util.isZero(pointToHeadDistance) ? this.axisHead
+                : this.axisHead.add(this.axisDirection.scale(pointToHeadDistance));
 
-        //4. We will return the normal vector at the point
-        return normalPoint.subtract(point).normalize();
+        //4. We will return the outward normal vector at the point
+        return point.subtract(normalPoint).normalize();
     }
 
 

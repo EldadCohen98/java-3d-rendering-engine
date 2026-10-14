@@ -11,6 +11,12 @@ import static primitives.Util.isZero;
 public class Ray {
 
     /**
+     * The size of the shift of the head of a ray along the normal of a surface,
+     * used to avoid self-intersection (see {@link #Ray(Point, Vector, Vector)}).
+     */
+    private static final double DELTA = 0.1;
+
+    /**
      * The origin point of the ray.
      */
     private final Point head;
@@ -30,6 +36,28 @@ public class Ray {
     public Ray(Point headRay, Vector directionRay) {
         this.head = headRay;
         this.direction = directionRay.normalize();
+    }
+
+    /**
+     * Constructs a ray whose head is shifted by {@link #DELTA} along the normal of a surface,
+     * to avoid self-intersection with the surface the ray starts from.
+     * The head is shifted to the side of the surface the ray points to: against the normal if
+     * the direction and the normal form an obtuse angle, and along the normal if they form an acute angle.
+     * If the direction is tangent to the surface (the dot product of the direction and the normal is zero,
+     * after aligning to zero) the ray does not point to either side, so the head is not shifted
+     * and stays at the original point.
+     * The direction and the normal are normalized, so the size of the shift does not depend on their lengths.
+     *
+     * @param headRay The point on the surface the ray starts from
+     * @param directionRay The direction vector of the ray
+     * @param normalPoint The normal of the surface at the point
+     */
+    public Ray(Point headRay, Vector directionRay, Vector normalPoint) {
+        this.direction = directionRay.normalize();
+        Vector normal = normalPoint.normalize();
+        double vectorsMode = Util.alignZero(this.direction.dotProduct(normal));
+
+        this.head = vectorsMode == 0 ? headRay : headRay.add(normal.scale(vectorsMode < 0 ? -DELTA : DELTA));
     }
 
     /**
@@ -92,7 +120,7 @@ public class Ray {
       * @return the point closest to the ray's head, or {@code null} if the list is empty or {@code null}
     */
     public Point findClosestPoint(List<Point> points) {
-        return points == null ? null
+        return points == null || points.isEmpty() ? null
                 : findClosestIntersection(points.stream().map(p -> new Intersection(null, p, null)).toList()).point;
     }
 

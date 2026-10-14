@@ -134,4 +134,8 @@ public class Sphere extends RadialGeometry {
         //If the list is empty, return null
         return null;
     }
+
+    public Point getCenter() {
+        return this.center;
+    }
 }

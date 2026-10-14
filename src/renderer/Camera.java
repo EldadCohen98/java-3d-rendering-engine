@@ -86,97 +86,131 @@ public class Camera implements Cloneable{
 
         /** Working method: Works with two vectors to and up
           * Sets the direction of the camera using forward and upward vectors.
-          * The vectors must be normalized and orthogonal to each other.
+          * The vectors must be orthogonal to each other; they do not have to be unit vectors
+          * (they are normalized). vRight is computed as vTo x vUp.
+          * On failure the previous direction setting is kept.
           * @param to the forward direction vector (vTo)
           * @param up the upward direction vector (vUp)
           * @return the current {@link Builder} instance (for method chaining)
-          * @throws IllegalArgumentException if either vector is {@code null} or not orthogonal
+          * @throws IllegalArgumentException if either vector is {@code null}, or the vectors are
+          *                                  parallel, opposite or not orthogonal
         */
         public Builder setDirection(Vector to, Vector up){
             if(to == null || up == null)
-                throw new IllegalArgumentException("Direction cannot be null");
+                throw new IllegalArgumentException("Direction vectors cannot be null");
 
-            Vector checkCross = to.crossProduct(up).normalize();
-            if(checkCross.equals(Vector.ZERO) || to.equals(up))
-                throw new IllegalArgumentException("vTo and vUp are parallel");
+            Vector vTo = to.normalize();
+            Vector vUp = up.normalize();
+            if(!Util.isZero(vTo.dotProduct(vUp)))
+                throw new IllegalArgumentException("vTo and vUp must be orthogonal (parallel, opposite or skewed vectors are not allowed)");
 
-            this.camera.vTo = to.normalize();
-            this.camera.vUp = up.normalize();
-            this.camera.vRight = this.camera.vTo.normalize().crossProduct(this.camera.vUp.normalize()).normalize();
+            this.camera.vTo = vTo;
+            this.camera.vUp = vUp;
+            this.camera.vRight = vTo.crossProduct(vUp).normalize();
             return this;
         }
 
         /**
           * Sets the direction of the camera to look at a specific target point.
-          * This method calculates the forward vector {@code vTo} from the camera's position ({@code p0})
-          * toward the specified target point. Based on {@code vTo}, it selects a default "up" direction
-          * (usually {@code Vector.AXIS_Z}, unless {@code vTo} is parallel to it, in which case {@code Vector.AXIS_Y} is used),
-          * and computes the {@code vRight} and {@code vUp} vectors using cross products to ensure an orthogonal basis.
+          * vTo is the normalized vector from the camera location ({@code p0}) to the target.
+          * The reference "up" direction is +Y ({@link Vector#AXIS_Y}):
+          * vRight = vTo x Y (normalized) and vUp = vRight x vTo, so the three vectors are normalized,
+          * orthogonal and vRight = vTo x vUp. When the camera looks along the Y axis (up or down)
+          * the reference up is undefined and the call is rejected - use
+          * {@link #setDirection(Point, Vector)} with an explicit up vector in that case.
+          * On failure the previous direction setting is kept.
           * @param pointTarget the point in space that the camera should look at
           * @return the current {@link Builder} instance (for method chaining)
-          * @throws IllegalArgumentException if the target point is {@code null} or equals the camera's location
+          * @throws IllegalArgumentException if the target point is {@code null}, equals the camera's location,
+          *                                  or the view direction is parallel or opposite to the Y axis
+          * @throws IllegalStateException    if the camera location was not set before
         */
         public Builder setDirection(Point pointTarget){
             if(pointTarget == null)
                 throw new IllegalArgumentException("Direction cannot be null");
+            if(this.camera.p0 == null)
+                throw new IllegalStateException("The camera location must be set before the target point");
             if(pointTarget.equals(this.camera.p0))
                 throw new IllegalArgumentException("The direction point cannot be the camera's location point.");
 
-            this.camera.vTo = pointTarget.subtract(this.camera.p0).normalize();
-            this.camera.vRight = Vector.AXIS_Z.normalize();
+            Vector vTo = pointTarget.subtract(this.camera.p0).normalize();
+            //Parallel test by the dot product - no zero vector is created
+            if(Util.isZero(Math.abs(vTo.dotProduct(Vector.AXIS_Y)) - 1))
+                throw new IllegalArgumentException("The view direction is along the Y axis - the reference up (+Y) is undefined, use setDirection(target, up)");
 
-            if (this.camera.vTo.crossProduct(Vector.AXIS_Y).length() == 0) {
-                    throw new IllegalArgumentException("Right vector and up vector are parallel");
-            }
+            Vector vRight = vTo.crossProduct(Vector.AXIS_Y).normalize();
+            Vector vUp = vRight.crossProduct(vTo).normalize();
 
-            this.camera.vUp = this.camera.vRight.crossProduct(this.camera.vTo).normalize();
-            this.camera.vRight = this.camera.vTo.crossProduct(this.camera.vUp).normalize();
+            this.camera.vTo = vTo;
+            this.camera.vUp = vUp;
+            this.camera.vRight = vRight;
             return this;
         }
 
         /**
           * Sets the direction of the camera by specifying a target point and an upward vector.
-          * Calculates the forward vector (vTo) from the camera's position to the target point,
-          * then uses the cross product with the given up vector to compute a right vector (vRight),
-          * and finally derives the orthogonal up vector (vUp) from the right and forward vectors.
+          * Calculates the forward vector (vTo) from the camera's position to the target point.
+          * The given up vector is a reference direction and does not have to be orthogonal to vTo:
+          * vRight = vTo x up (normalized) and vUp = vRight x vTo is the up vector orthogonal to vTo.
+          * On failure the previous direction setting is kept.
           * @param targetPoint the point the camera should look at
           * @param upVector    a vector indicating the general "up" direction in the scene
           * @return this Builder object (for chaining)
           * @throws IllegalArgumentException if the target point or up vector is null,
           *                                  if the target equals the camera location,
-          *                                  or if the given up vector is parallel to the view direction
+          *                                  or if the given up vector is parallel or opposite to the view direction
+          * @throws IllegalStateException    if the camera location was not set before
         */
         public Builder setDirection(Point targetPoint, Vector upVector){
             if(targetPoint == null || upVector == null)
                 throw new IllegalArgumentException("The target point and vector up cannot be null");
+            if(this.camera.p0 == null)
+                throw new IllegalStateException("The camera location must be set before the target point");
             if(targetPoint.equals(this.camera.p0))
                 throw new IllegalArgumentException("The direction point cannot be the camera's location point.");
 
-            this.camera.vTo = targetPoint.subtract(this.camera.p0).normalize();
-            this.camera.vRight = this.camera.vTo.crossProduct(upVector.normalize()).normalize();
+            Vector vTo = targetPoint.subtract(this.camera.p0).normalize();
+            Vector reference = upVector.normalize();
+            //Parallel test by the dot product - no zero vector is created
+            if(Util.isZero(Math.abs(vTo.dotProduct(reference)) - 1))
+                throw new IllegalArgumentException("The up vector cannot be parallel or opposite to the view direction");
 
-            if(this.camera.vRight.equals(Vector.ZERO))
-                throw new IllegalArgumentException("A right vector cannot be 0.");
+            Vector vRight = vTo.crossProduct(reference).normalize();
+            Vector vUp = vRight.crossProduct(vTo).normalize();
 
-            this.camera.vUp = this.camera.vRight.crossProduct(this.camera.vTo).normalize();
+            this.camera.vTo = vTo;
+            this.camera.vUp = vUp;
+            this.camera.vRight = vRight;
             return this;
         }
 
         /**
           * Sets the ray tracer for the camera according to the specified type.
-          * Currently, supports only the SIMPLE type, which uses a basic ray tracing algorithm.
+          * Currently, supports only the SIMPLE type, which uses a basic ray tracing algorithm
+          * on the given scene. Other types (GRID) are not implemented yet and are rejected.
+          * A rejected call keeps the ray tracer that was set before.
           * @param type  the type of ray tracer to use (e.g., SIMPLE)
           * @param scene the scene to be traced by the ray tracer
           * @return this Builder object for method chaining
+          * @throws IllegalArgumentException      if the scene or the type is {@code null}
+          * @throws UnsupportedOperationException if the type is not implemented yet (GRID)
         */
         public Builder setRayTracer(Scene scene,RayTracerType type){
-            if(type == RayTracerType.SIMPLE )
-                this.camera.rayTracer = new SimpleRayTracer(scene);
+            if(scene == null || type == null)
+                throw new IllegalArgumentException("The scene and the ray tracer type cannot be null");
+            if(type != RayTracerType.SIMPLE)
+                throw new UnsupportedOperationException("Ray tracer type " + type + " is not implemented yet - use SIMPLE");
+
+            this.camera.rayTracer = new SimpleRayTracer(scene);
             return this;
         }
 
         /**
           * Sets the image writer for the camera, which handles pixel writing and image creation.
+          * The given image writer is used as is by every camera built afterwards with this builder,
+          * so cameras built with the same explicit image writer share its pixel buffer.
+          * Its size must match the resolution of the camera at build time.
+          * If no image writer is set, each built camera gets its own new image writer.
           * @param imageWriter the image writer to assign to the camera
           * @return this Builder object for method chaining
         */
@@ -196,6 +230,9 @@ public class Camera implements Cloneable{
           *     <li>Direction vectors (vTo, vUp, vRight) are not all set</li>
           *     <li>View plane size or distance are non-positive</li>
           *     <li>Resolution dimensions (nX, nY) are non-positive</li>
+          *     <li>An explicitly set image writer does not match the resolution</li>
+          * The builder stays reusable: if no image writer was set, every built camera gets
+          * a new image writer of its own resolution.
         */
         public Camera build(){
             if(camera.p0 == null)
@@ -230,25 +267,31 @@ public class Camera implements Cloneable{
                                                    "Camera",
                                                    "How many pixels wide – screen resolution (X)\n" +
                                                    "How many pixels high – screen resolution (Y)");
-            if (camera.imageWriter == null)
-                camera.imageWriter = new ImageWriter(camera.nX, camera.nY);
+            if (camera.imageWriter != null && (camera.imageWriter.nX() != camera.nX || camera.imageWriter.nY() != camera.nY))
+                throw new IllegalArgumentException("Image writer size " + camera.imageWriter.nX() + "x" + camera.imageWriter.nY()
+                                                   + " does not match the resolution " + camera.nX + "x" + camera.nY);
 
             if (camera.rayTracer == null)
                 camera.rayTracer = new SimpleRayTracer(new Scene("default"));
 
-
-            return (Camera) camera.clone();
+            Camera builtCamera = camera.clone();
+            //A new pixel buffer for each camera, unless an image writer was set explicitly
+            if (builtCamera.imageWriter == null)
+                builtCamera.imageWriter = new ImageWriter(camera.nX, camera.nY);
+            return builtCamera;
         }
     }
        /*========================================= end builder ========================================= */
 
 
     /**
-      * Creates and returns a deep copy (clone) of this {@code Camera} instance.
-      * The cloned {@code Camera} will contain new copies of all non-primitive fields
-      * (such as {@link Point} and {@link Vector}) to ensure full independence
-      * from the original object.
-      * @return a new {@code Camera} object that is a deep copy of this instance
+      * Creates and returns a copy (clone) of this {@code Camera} instance.
+      * The location and direction vectors ({@link Point} and {@link Vector}) are copied,
+      * and the primitive fields (view plane size, distance, resolution) are copied by value,
+      * so later changes to the original do not affect the clone.
+      * The image writer and the ray tracer are NOT copied - the clone shares them with the original
+      * (the builder gives each built camera its own image writer unless one was set explicitly).
+      * @return a new {@code Camera} object that is a copy of this instance
       * @throws RuntimeException if cloning fails (should never happen)
     */
     public Camera clone(){
@@ -358,8 +401,9 @@ public class Camera implements Cloneable{
     public Camera renderImage(){
         if(this.imageWriter == null || this.rayTracer == null)
             throw new UnsupportedOperationException ("Not supported yet.");
-        for(int i=0; i<this.nX; i++)
-            for(int j=0; j<this.nY; j++)
+        //i - row (up to nY), j - column (up to nX)
+        for(int i=0; i<this.nY; i++)
+            for(int j=0; j<this.nX; j++)
                 castRay(i,j);
         return this;
     }

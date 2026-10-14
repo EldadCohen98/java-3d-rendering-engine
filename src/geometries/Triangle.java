@@ -34,6 +34,8 @@ public class Triangle extends Polygon {
      */
     @Override
     public Vector getNormal(Point point) {
-        return super.getNormal(point);
+        Vector v1 = this.vertices.get(0).subtract(this.vertices.get(1));
+        Vector v2 = this.vertices.get(0).subtract(this.vertices.get(2));
+        return v1.crossProduct(v2).normalize();
     }
 }
