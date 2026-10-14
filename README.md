@@ -8,6 +8,8 @@ A 3D rendering engine developed in Java using ray tracing, vector mathematics, l
   - Camera and ray construction
   - Multiple light sources and lighting calculations
   - Material properties and shading
+  - Shadows, including partial shadows cast by partly transparent objects
+  - Transparency and reflection, computed recursively with a stopping condition
   - Vector and point-based mathematical computations
   - Object-oriented software design
   - Automated testing with JUnit
@@ -43,6 +45,13 @@ The rendering process follows these main steps:
   ### Lighting on Different Geometry
   ![Lighting on Different Geometry](images/lightThreeLightsTriangle.png)
 
+  ### Shadows, Transparency and Reflection
+  A scene made for this project: a transparent sphere in front of a solid ball, a triangle standing on a mirror-like floor,
+  with a partial shadow (through the transparent sphere) and a full shadow (of the triangle).
+  ![Final scene](images/finalScene.png)
+
+  More scenes of the stage are in `images/` (`shadow*`, `refraction*`, `reflection*`).
+
 
 
 ## Testing
@@ -56,6 +65,13 @@ Tests cover areas such as:
 - Geometric intersections
 - Camera behavior
 - Rendering-related logic
+- Shadows, transparency and reflection (recursion, tangent hits, partial shadows)
+
+Most test classes check values with assertions. The classes that render scenes to image files
+(`LightsTests`, `ShadowTests`, `ReflectionRefractionTests`, `FinalSceneTests`, `RenderTests`, `ImageWriterTest`)
+have no assertions: they pass when the rendering finishes without an exception, and the images are checked by eye.
+
+See [docs/stage7-notes.md](docs/stage7-notes.md) for the notes of stage 7 (changes, verification, deliberate deviations and known limitations).
 
 
 ## Project Structure
